@@ -1,0 +1,85 @@
+import numpy as np
+
+np.seterr(divide='ignore', invalid='ignore') 
+#removes any punctuation and makes all letters lowercase
+def pure_alpha(string):
+    lst = []
+    for i in string:
+        if i.isalpha():
+            lst.append(i.lower())
+    return ''.join(lst)
+#takes a string and adds to the matrix
+def word2matrix(string):
+    for i in range(len(string)-1):
+        x = ord(string[i])-96
+        y = ord(string[i+1])-96
+        if x>27 or y>27:
+            break
+        else:
+            let_mat[(x,y)] += 1
+
+def chr_start(matrix):
+    a = 97
+    for i in range(1,27):
+        matrix[(0,i)] = a
+        matrix[(i,0)] = a
+        a += 1
+def closest_match(test_prob,db_prob):
+    count = 0
+    for i in range(1,27):
+        for j in range(1,27):
+            count += abs(test_prob[i,j]-db_prob[i,j])
+    return count
+    
+#open text file
+f = open("test_text_sp.txt","r")
+lines = f.readlines()
+f.close()
+
+#create list of words in the file
+word_list = []
+for line in lines:
+    word_list.extend(line.split())
+
+#creates a list of words all in lower case with no punctuation
+word_list2 = []
+for word in word_list:
+    word_list2.append(pure_alpha(word))
+#creates a matrix 27x27 of 0 in int form
+let_mat = np.zeros((27,27),dtype=np.int)
+#counts the number of time a letter follows another
+for word in word_list2:
+    word2matrix(word)
+#adds the order number of the letter to corresponding column and row
+
+  #creates another matrix for the probabilities 
+let_prob = np.round(np.zeros((27,27)),4)
+np.set_printoptions(suppress=True)
+#inputs the probabilities that the letter will follow the preciding letter
+
+#for j in range(1,27):
+#    for k in range(1,27):
+#        let_prob[j,k] = let_mat[j,k]*100/(let_mat[j].sum())
+shape = np.shape(let_mat)
+let_prob = np.round((let_mat/np.repeat(let_mat.sum(axis=1),shape[1]).reshape(*shape).astype(float))*100,2)
+
+#changes values from scientific notation 1E01 to  1
+np.set_printoptions(suppress=True)
+
+en_prob = np.load("en_prob.npy")
+nl_prob = np.load("nl_prob.npy")
+fr_prob = np.load("fr_prob.npy")
+sp_prob = np.load("sp_prob.npy")
+de_prob = np.load("de_prob.npy")
+
+db_probs = {'english':en_prob,'dutch':nl_prob,'french':fr_prob,'spanish':sp_prob,'german': de_prob}
+
+smallest = 10000000000
+language = 'null'
+for i in db_probs:
+    difference = closest_match(let_prob,db_probs[i])
+    if difference<smallest:
+        smallest = difference
+        language = i
+print (language)
+
