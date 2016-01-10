@@ -1,6 +1,7 @@
 import numpy as np
 
 np.seterr(divide='ignore', invalid='ignore') 
+
 #removes any punctuation and makes all letters lowercase
 def pure_alpha(string):
     lst = []
@@ -8,6 +9,7 @@ def pure_alpha(string):
         if i.isalpha():
             lst.append(i.lower())
     return ''.join(lst)
+    
 #takes a string and adds to the matrix
 def word2matrix(string):
     for i in range(len(string)-1):
@@ -18,12 +20,6 @@ def word2matrix(string):
         else:
             let_mat[(x,y)] += 1
 
-def chr_start(matrix):
-    a = 97
-    for i in range(1,27):
-        matrix[(0,i)] = a
-        matrix[(i,0)] = a
-        a += 1
 def closest_match(test_prob,db_prob):
     count = 0
     for i in range(1,27):
